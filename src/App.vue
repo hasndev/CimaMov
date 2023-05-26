@@ -75,7 +75,7 @@ const filteredMovies = computed(() => {
 
 
 const fetchMoviesPopular = async () => {
-  const response = await axios.get('https://api.themoviedb.org/3/movie/top_rated/', {
+  const response = await axios.get('https://api.themoviedb.org/3/movie/top_rated', {
     headers: header
   });
   moviesPopular.value = response.data.results;
