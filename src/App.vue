@@ -15,9 +15,8 @@
   <!-- Movie Section -->
   <div class="bg-gray-900 py-16">
     <div class="container mx-auto px-4">
-      <h2 v-if="!searchQuery" class="text-3xl font-bold mb-8 text-center text-red">Trending</h2>
-      <h2 v-else class="text-3xl font-bold mb-8 text-center text-red">Results Search About "{{ searchQuery
-      }}"</h2>
+      <h2 v-if="!searchQuery || movies.length > 0" class="text-3xl font-bold mb-8 text-center text-red">Trending</h2>
+      <h2 v-else class="text-3xl font-bold mb-8 text-center text-red">Results Search About "{{ searchQuery }}"</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
         <!-- Movie Card -->
         <Movie v-for="movie in movies" :movie="movie" :key="movie.id"></Movie>
@@ -39,7 +38,7 @@
 
 <script setup>
 import axios from 'axios';
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, watch } from "vue";
 import Movie from './components/Movie.vue';
 
 const movies = ref([]);
@@ -57,22 +56,18 @@ const fetchMovies = async () => {
 }
 
 const searchMovies = async () => {
-  const searchResponse = await axios.get('https://api.themoviedb.org/3/search/movie', {
-    headers: header,
-    params: {
-      query: searchQuery.value
-    }
-  });
-  movies.value = searchResponse.data.results;
-}
-
-const filteredMovies = computed(() => {
   if (!searchQuery.value) {
-    return fetchMovies();
+    await fetchMovies();
+  } else {
+    const searchResponse = await axios.get('https://api.themoviedb.org/3/search/movie', {
+      headers: header,
+      params: {
+        query: searchQuery.value
+      }
+    });
+    movies.value = searchResponse.data.results;
   }
-  return searchMovies();
-});
-
+}
 
 const fetchMoviesPopular = async () => {
   const response = await axios.get('https://api.themoviedb.org/3/movie/top_rated', {
@@ -81,8 +76,10 @@ const fetchMoviesPopular = async () => {
   moviesPopular.value = response.data.results;
 }
 
-onMounted(() => {
-  fetchMovies();
-  fetchMoviesPopular();
+onMounted(async () => {
+  await fetchMovies();
+  await fetchMoviesPopular();
 });
+
+watch(searchQuery, searchMovies);
 </script>
