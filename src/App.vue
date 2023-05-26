@@ -56,11 +56,11 @@ const fetchMovies = async () => {
   movies.value = response.data.results.slice(0, 8);
 }
 
-const searchMovies = async (searchValue) => {
+const searchMovies = async () => {
   const searchResponse = await axios.get('https://api.themoviedb.org/3/search/movie', {
     headers: header,
     params: {
-      query: searchValue
+      query: searchQuery.value
     }
   });
   movies.value = searchResponse.data.results;
@@ -70,7 +70,7 @@ const filteredMovies = computed(() => {
   if (!searchQuery.value) {
     return fetchMovies();
   }
-  return searchMovies(searchQuery.value);
+  return searchMovies();
 });
 
 
